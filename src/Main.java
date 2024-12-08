@@ -1,15 +1,19 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import config.Database;
+import repositories.WordRepository;
+import repositories.WordRepositoryDbImpl;
+import services.WordService;
+import services.WordServiceImpl;
+import views.WordTerminalViewImpl;
+import views.TodoListView;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+        Database database = new Database("final_pbo", "root", "", "localhost", "3306");
+        database.setup();
+        WordRepository wordRepository = new WordRepositoryDbImpl(database);
+        WordService wordService = new WordServiceImpl(wordRepository);
+        TodoListView wordView = new WordTerminalViewImpl(wordService);
+        wordView.run();
     }
 }
