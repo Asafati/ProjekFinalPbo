@@ -1,56 +1,51 @@
 package services;
 
 import entities.Word;
-import repositories.WordRepository;
-
 import java.util.List;
+import java.util.ArrayList;
 
 public class WordServiceImpl implements WordService {
-    private final WordRepository wordRepository;
-
-    public WordServiceImpl(WordRepository wordRepository) {
-        this.wordRepository = wordRepository;
-    }
+    private List<Word> wordList = new ArrayList<>();  // Daftar kata dan arti
 
     @Override
     public List<Word> getWordList() {
-        return wordRepository.getAll(); // Mengambil daftar kata dari repository
+        return wordList;
     }
 
     @Override
     public void addWord(String word, String meaning) {
-        // Validasi input kata dan arti
-        if (word == null || word.isBlank()) {
-            System.out.println("Masukkan kata dengan benar.");
-            return;
-        }
-        if (meaning == null || meaning.isBlank()) {
-            System.out.println("Masukkan arti kata dengan benar.");
-            return;
-        }
-
-        // Membuat objek Word baru dan menambahkannya ke repository
-        Word newWord = new Word(word, meaning);
-        wordRepository.add(newWord);
-        System.out.println("Kata berhasil ditambahkan.");
+        wordList.add(new Word(word, meaning));  // Menambahkan kata baru beserta artinya
     }
 
     @Override
     public Boolean removeWord(String word) {
-        // Menghapus kata dari repository
-        return wordRepository.remove(word);
+        for (Word w : wordList) {
+            if (w.getWord().equals(word)) {
+                wordList.remove(w);
+                return true;  // Kata ditemukan dan dihapus
+            }
+        }
+        return false;  // Kata tidak ditemukan
     }
 
     @Override
     public Boolean editWord(String word, String newMeaning) {
-        // Validasi arti baru
-        if (newMeaning == null || newMeaning.isBlank()) {
-            System.out.println("Masukkan arti kata yang baru dengan benar.");
-            return false;
+        for (Word w : wordList) {
+            if (w.getWord().equals(word)) {
+                w.setMeaning(newMeaning);  // Mengubah arti kata
+                return true;
+            }
         }
+        return false;  // Kata tidak ditemukan
+    }
 
-        // Membuat objek Word yang diperbarui dan mengeditnya di repository
-        Word updatedWord = new Word(word, newMeaning);
-        return wordRepository.edit(updatedWord);
+    // Method getMeaning yang mengembalikan arti kata
+    public String getMeaning(String word) {
+        for (Word w : wordList) {
+            if (w.getWord().equals(word)) {
+                return w.getMeaning();  // Mengembalikan arti kata
+            }
+        }
+        return null;  // Jika kata tidak ditemukan
     }
 }

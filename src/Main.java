@@ -8,7 +8,6 @@ import views.WordListView;
 
 public class Main {
     public static void main(String[] args) {
-
         Database database = new Database("databasefinalpbo", "root", "", "localhost", "3306");
         database.setup();
         WordRepository wordRepository = new WordRepositoryDbImpl(database);

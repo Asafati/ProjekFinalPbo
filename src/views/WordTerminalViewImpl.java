@@ -4,7 +4,7 @@ import entities.Word;
 import java.util.List;
 import java.util.ArrayList;
 
-public class WordServiceImpl implements WordService {
+public class WordTerminalViewImpl implements WordService {
 
     private List<Word> wordList = new ArrayList<>();  // Daftar kata dan arti
 
