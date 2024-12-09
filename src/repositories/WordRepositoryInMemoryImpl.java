@@ -21,7 +21,13 @@ public class WordRepositoryInMemoryImpl implements WordRepository {
 
     @Override
     public Boolean remove(String word) {
-        return wordList.removeIf(w -> w.getWord().equals(word));
+        boolean removed = wordList.removeIf(w -> w.getWord().equals(word));
+        if (removed) {
+            System.out.println("Kata berhasil dihapus.");
+        } else {
+            System.out.println("Kata tidak ditemukan.");
+        }
+        return removed;
     }
 
     @Override
@@ -29,9 +35,11 @@ public class WordRepositoryInMemoryImpl implements WordRepository {
         for (int i = 0; i < wordList.size(); i++) {
             if (wordList.get(i).getWord().equals(word.getWord())) {
                 wordList.set(i, word);
+                System.out.println("Arti kata berhasil diperbarui.");
                 return true;
             }
         }
+        System.out.println("Kata tidak ditemukan untuk diperbarui.");
         return false;
     }
 }

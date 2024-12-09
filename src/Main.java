@@ -4,16 +4,16 @@ import repositories.WordRepositoryDbImpl;
 import services.WordService;
 import services.WordServiceImpl;
 import views.WordTerminalViewImpl;
-import views.TodoListView;
+import views.WordListView;
 
 public class Main {
     public static void main(String[] args) {
 
-        Database database = new Database("final_pbo", "root", "", "localhost", "3306");
+        Database database = new Database("databasefinalpbo", "root", "", "localhost", "3306");
         database.setup();
         WordRepository wordRepository = new WordRepositoryDbImpl(database);
         WordService wordService = new WordServiceImpl(wordRepository);
-        TodoListView wordView = new WordTerminalViewImpl(wordService);
+        WordListView wordView = new WordTerminalViewImpl(wordService); // Mengganti TodoListView dengan WordListView
         wordView.run();
     }
 }

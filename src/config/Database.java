@@ -19,13 +19,15 @@ public class Database {
         this.host = host;
         this.port = port;
     }
+
     public Connection getConnection() {
         return connection;
     }
+
     public void setup() {
         String mysqlConnUrlTemplate = "jdbc:mysql://%s:%s/%s";
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");  // Update the MySQL driver if needed
             connection = DriverManager.getConnection(
                     String.format(mysqlConnUrlTemplate, host, port, dbName),
                     userName,
@@ -36,6 +38,7 @@ public class Database {
             throw new RuntimeException("Database connection failed: " + e.getMessage(), e);
         }
     }
+
     public void closeConnection() {
         if (connection != null) {
             try {
