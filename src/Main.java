@@ -1,18 +1,17 @@
-import config.Database;
-import repositories.WordRepository;
-import repositories.WordRepositoryDbImpl;
+package main;
+
 import services.WordService;
 import services.WordServiceImpl;
+import repositories.WordRepository;
+import repositories.WordRepositoryDbImpl;
 import views.WordTerminalViewImpl;
-import views.WordListView;
 
 public class Main {
     public static void main(String[] args) {
-        Database database = new Database("databasefinalpbo", "root", "", "localhost", "3306");
-        database.setup();
-        WordRepository wordRepository = new WordRepositoryDbImpl(database);
+        WordRepository wordRepository = new WordRepositoryDbImpl();
         WordService wordService = new WordServiceImpl(wordRepository);
-        WordListView wordView = new WordTerminalViewImpl(wordService); // Mengganti TodoListView dengan WordListView
-        wordView.run();
+        WordTerminalViewImpl wordTerminalView = new WordTerminalViewImpl(wordService);
+
+        wordTerminalView.showMenu();
     }
 }

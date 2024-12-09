@@ -4,15 +4,14 @@ import entities.Word;
 import java.util.List;
 
 public interface WordRepository {
-    // Mendapatkan semua kata dari database
-    List<Word> getAll();
-
-    // Menambahkan kata baru ke database
-    void add(Word word);
-
-    // Menghapus kata berdasarkan nama kata
-    Boolean remove(String word);
-
-    // Mengupdate kata yang sudah ada
-    Boolean edit(Word word);
+    List<Word> getAllWords();
+    void addWord(Word word);
+    void removeWord(int id);
+    void updateWord(Word word);
+    List<Word> findWordsContainingChar(String character);
+    Word findWordByPrefixOrSuffix(String prefix, String suffix);
+    int getWordCount();
+    void resetDictionary();
+    List<Word> findWordsByLength(int length);
+    void importDefaultWords();
 }

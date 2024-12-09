@@ -1,84 +1,149 @@
 package repositories;
 
-import config.Database;
 import entities.Word;
+import config.DatabaseConfig;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class WordRepositoryDbImpl implements WordRepository {
-    private final Database database;
-
-    public WordRepositoryDbImpl(Database database) {
-        this.database = database;
-    }
-
     @Override
-    public List<Word> getAll() {
-        List<Word> wordList = new ArrayList<>();
-        String sql = "SELECT * FROM words"; // Disesuaikan dengan tabel 'words'
-        try (Connection connection = database.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
+    public List<Word> getAllWords() {
+        List<Word> words = new ArrayList<>();
+        try (Connection connection = DatabaseConfig.connect()) {
+            String query = "SELECT * FROM Words";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
-                Integer id = resultSet.getInt("id"); // Ambil id dari kolom 'id'
-                String word = resultSet.getString("word"); // Ambil kata dari kolom 'word'
-                String meaning = resultSet.getString("meaning"); // Ambil arti dari kolom 'meaning'
-                wordList.add(new Word(id, word, meaning)); // Menambahkan Word ke list
+                words.add(new Word(resultSet.getInt("Id"), resultSet.getString("Word"), resultSet.getString("Meaning")));
             }
         } catch (SQLException e) {
-            System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
         }
-        return wordList;
+        return words;
     }
 
     @Override
-    public void add(Word word) {
-        String sql = "INSERT INTO words (word, meaning) VALUES (?, ?)"; // Menyusun query INSERT untuk tabel 'words'
-        try (Connection connection = database.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, word.getWord()); // Set nilai word
-            preparedStatement.setString(2, word.getMeaning()); // Set nilai meaning
-            preparedStatement.executeUpdate();  // Menjalankan query
-            System.out.println("Kata berhasil ditambahkan.");
+    public void addWord(Word word) {
+        try (Connection connection = DatabaseConfig.connect()) {
+            String query = "INSERT INTO Words (Word, Meaning) VALUES (?, ?)";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, word.getWord());
+            statement.setString(2, word.getMeaning());
+            statement.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     @Override
-    public Boolean remove(String word) {
-        String sql = "DELETE FROM words WHERE word = ?"; // Menyusun query DELETE untuk tabel 'words'
-        try (Connection connection = database.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, word); // Set nilai word yang akan dihapus
-            int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Kata berhasil dihapus.");
-                return true; // Mengembalikan true jika kata berhasil dihapus
-            }
+    public void removeWord(int id) {
+        try (Connection connection = DatabaseConfig.connect()) {
+            String query = "DELETE FROM Words WHERE Id = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, id);
+            statement.executeUpdate();
         } catch (SQLException e) {
-            System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
         }
-        return false; // Mengembalikan false jika terjadi error atau kata tidak ditemukan
     }
 
     @Override
-    public Boolean edit(Word word) {
-        String sql = "UPDATE words SET meaning = ? WHERE word = ?"; // Menyusun query UPDATE untuk tabel 'words'
-        try (Connection connection = database.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, word.getMeaning()); // Set nilai meaning yang baru
-            preparedStatement.setString(2, word.getWord()); // Set nilai word yang akan diupdate
-            int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Arti kata berhasil diperbarui.");
-                return true; // Mengembalikan true jika arti kata berhasil diperbarui
+    public void updateWord(Word word) {
+        try (Connection connection = DatabaseConfig.connect()) {
+            String query = "UPDATE Words SET Word = ?, Meaning = ? WHERE Id = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, word.getWord());
+            statement.setString(2, word.getMeaning());
+            statement.setInt(3, word.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<Word> findWordsContainingChar(String character) {
+        List<Word> words = new ArrayList<>();
+        try (Connection connection = DatabaseConfig.connect()) {
+            String query = "SELECT * FROM Words WHERE Word LIKE ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, "%" + character + "%");
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                words.add(new Word(resultSet.getInt("Id"), resultSet.getString("Word"), resultSet.getString("Meaning")));
             }
         } catch (SQLException e) {
-            System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
         }
-        return false; // Mengembalikan false jika terjadi error atau kata tidak ditemukan
+        return words;
+    }
+
+    @Override
+    public Word findWordByPrefixOrSuffix(String prefix, String suffix) {
+        Word word = null;
+        try (Connection connection = DatabaseConfig.connect()) {
+            String query = "SELECT * FROM Words WHERE Word LIKE ? OR Word LIKE ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, prefix + "%");
+            statement.setString(2, "%" + suffix);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                word = new Word(resultSet.getInt("Id"), resultSet.getString("Word"), resultSet.getString("Meaning"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return word;
+    }
+
+    @Override
+    public int getWordCount() {
+        int count = 0;
+        try (Connection connection = DatabaseConfig.connect()) {
+            String query = "SELECT COUNT(*) FROM Words";
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            if (resultSet.next()) {
+                count = resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+    @Override
+    public void resetDictionary() {
+        try (Connection connection = DatabaseConfig.connect()) {
+            String query = "DELETE FROM Words";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<Word> findWordsByLength(int length) {
+        List<Word> words = new ArrayList<>();
+        try (Connection connection = DatabaseConfig.connect()) {
+            String query = "SELECT * FROM Words WHERE LENGTH(Word) = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setInt(1, length);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                words.add(new Word(resultSet.getInt("Id"), resultSet.getString("Word"), resultSet.getString("Meaning")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return words;
+    }
+
+    @Override
+    public void importDefaultWords() {
+        // Add default words into the database if needed
     }
 }
