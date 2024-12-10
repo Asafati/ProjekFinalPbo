@@ -1,17 +1,20 @@
-package main;
-
-import services.WordService;
-import services.WordServiceImpl;
-import repositories.WordRepository;
-import repositories.WordRepositoryDbImpl;
-import views.WordTerminalViewImpl;
+import config.Database;
+import repositories.TodoListRepository;
+import repositories.TodoListRepositoryDbImpl;
+import services.TodoListService;
+import services.TodoListServiceImpl;
+import views.TodoListTerminalViewImpl;
+import views.TodoListView;
 
 public class Main {
     public static void main(String[] args) {
-        WordRepository wordRepository = new WordRepositoryDbImpl();
-        WordService wordService = new WordServiceImpl(wordRepository);
-        WordTerminalViewImpl wordTerminalView = new WordTerminalViewImpl(wordService);
 
-        wordTerminalView.showMenu();
+        Database database = new Database("databaseku", "root", "", "localhost", "3306");
+        database.setup();
+
+        TodoListRepository todoListRepository = new TodoListRepositoryDbImpl(database);
+        TodoListService todoListService = new TodoListServiceImpl(todoListRepository);
+        TodoListView todoListView = new TodoListTerminalViewImpl(todoListService);
+        todoListView.run();
     }
 }
