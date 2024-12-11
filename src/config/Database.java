@@ -1,5 +1,5 @@
 package config;
-
+  //commit asafatigea pertama  ; perencanaan aplikasi awal
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -20,7 +20,10 @@ public class Database {
         this.port = port;
     }
 
-    public Connection getConnection() {
+    public Connection getConnection() throws SQLException {
+        if (connection == null || connection.isClosed()) {
+            setup();
+        }
         return connection;
     }
 
@@ -32,7 +35,7 @@ public class Database {
             System.out.println("Database connected!");
 
         } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            throw  new RuntimeException(e);
         }
     }
 }
